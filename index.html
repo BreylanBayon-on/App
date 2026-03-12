@@ -1,0 +1,294 @@
+<!DOCTYPE html>  <html lang="en">  
+<head>  
+<meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width, initial-scale=1.0">  
+<title>The Holy Breyble</title>  
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">  
+<style>  
+* { box-sizing: border-box; margin:0; padding:0; }  
+body { font-family:'Georgia',serif; padding:20px; background:linear-gradient(135deg,#f5f5dc,#e6e6fa); color:#333; line-height:1.6; }  
+.container { max-width:1200px; margin:0 auto; padding:20px; background:rgba(255,255,255,0.95); border-radius:10px; box-shadow:0 4px 8px rgba(0,0,0,0.1);}  
+h1{text-align:center;color:#2c3e50;margin-bottom:10px;font-size:2.5em;text-shadow:1px 1px 2px rgba(0,0,0,0.1);}  
+.subtitle{text-align:center;color:#7f8c8d;margin-bottom:30px;font-style:italic;}  
+.search-container{text-align:center;margin-bottom:30px;}  
+#search-input{padding:10px;width:60%;max-width:400px;border:1px solid #bdc3c7;border-radius:5px;font-size:1em;}  
+#search-btn{padding:10px 15px;background:#3498db;color:white;border:none;border-radius:5px;cursor:pointer;font-size:1em;margin-left:10px;}  
+#search-btn:hover{background:#2980b9;}  
+#search-results{display:none;margin-top:20px;padding:15px;background:#ffffff;border:1px solid #dee2e6;border-radius:8px;max-height:400px;overflow-y:auto;box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);}  
+.testament{margin-bottom:50px;}  
+h2{color:#34495e;border-bottom:2px solid #bdc3c7;padding-bottom:10px;margin-bottom:20px;font-size:1.8em;}  
+.book-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:15px;}  
+.book{background:#ecf0f1;border:1px solid #bdc3c7;padding:15px;cursor:pointer;border-radius:8px;transition:all 0.3s ease;text-align:center;font-weight:bold;position:relative;}  
+.book:hover{background:#d5dbdb;transform:translateY(-2px);box-shadow:0 4px 8px rgba(0,0,0,0.15);}  
+.book::before{content:'\f02d';font-family:'Font Awesome 6 Free';font-weight:900;display:block;font-size:1.5em;margin-bottom:5px;color:#3498db;}  
+.verse{margin-bottom:15px;padding:10px;background:#f8f9fa;border-left:4px solid #3498db;border-radius:4px;display:flex;justify-content:space-between;align-items:center;transition:0.3s;flex-wrap:wrap;}  
+.verse.highlighted{background:#fff176;}  
+.verse strong{color:#2c3e50;}  
+.highlight-btn, .save-btn, .reflect-btn{padding:5px 10px;margin-left:5px;border:none;border-radius:5px;cursor:pointer;font-size:0.8em;color:white;}  
+.highlight-btn{background:#f1c40f;}  
+.save-btn{background:#27ae60;}  
+.reflect-btn{background:#8e44ad;}  
+.daily-verse{margin:20px auto;padding:15px;background:#f9e79f;border-left:4px solid #f1c40f;border-radius:6px;max-width:800px;}  
+#gameArea{display:none;margin-top:20px;padding:15px;background:#f0f0f0;border-radius:8px;}  
+#gameChoices button{width:100%; text-align:left;}  
+.reflection-list{margin-bottom:20px;}  
+.reflection-item{background:#dcdde1;padding:10px;border-left:4px solid #8e44ad;border-radius:6px;margin-bottom:10px;display:flex;justify-content:space-between;align-items:center;}  
+.reflection-item button{background:#e74c3c;color:white;border:none;padding:5px 10px;border-radius:6px;cursor:pointer;}  
+@media(max-width:768px){.book-list{grid-template-columns:repeat(auto-fill,minmax(120px,1fr));}h1{font-size:2em;}.container{padding:10px;}#search-input{width:80%;}}  
+</style>  
+</head>  
+<body>  
+<div class="container">  
+<h1><i class="fas fa-book-open"></i> The Holy Breyble</h1>  
+<p class="subtitle">hello good day , welcome</p>  <div id="daily-verse" class="daily-verse"><strong>Daily Verse:</strong> Loading...</div>  <div class="search-container">  
+<input type="text" id="search-input" placeholder="Search for verses or keywords...">  
+<button id="search-btn">Search</button>  
+</div>  
+<div id="search-results"></div>  <div class="search-container" style="margin-top:30px;">  
+  <button id="startGameBtn" style="background:#e67e22;color:white;padding:10px 20px;border:none;border-radius:6px;cursor:pointer;font-size:1em;">🎮 Guess the Verse Game</button>  
+</div>  
+<div id="gameArea">  
+  <h3 id="gamePrompt"></h3>  
+  <div id="gameChoices" style="margin-top:15px;display:flex;flex-direction:column;gap:10px;"></div>  
+  <p id="gameFeedback" style="margin-top:15px;font-weight:bold;"></p>  
+  <button id="nextGameBtn" style="margin-top:15px;background:#3498db;color:white;padding:8px 12px;border:none;border-radius:6px;cursor:pointer;display:none;">Next Verse</button>  
+</div>  <div class="testament">  
+<h2><i class="fas fa-scroll"></i> Old Testament</h2>  
+<div class="book-list" id="old-testament-books"></div>  
+</div>  
+<div class="testament">  
+<h2><i class="fas fa-cross"></i> New Testament</h2>  
+<div class="book-list" id="new-testament-books"></div>  
+</div>  <div class="reflection-list" id="reflection-list"></div>  <div id="reading-area"></div>  
+</div>  <!-- Reflection Modal -->  <div id="reflectionModal" style="display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.6);justify-content:center;align-items:center;z-index:999;">  
+  <div id="reflectionContent" style="background:white;padding:20px;border-radius:10px;max-width:600px;width:90%;position:relative;">  
+    <h3>Reflect on this verse</h3>  
+    <textarea id="reflectionText" placeholder="Share your thoughts or lesson learned..." style="width:100%;height:150px;padding:10px;border-radius:6px;border:1px solid #bdc3c7;resize:none;font-size:1em;"></textarea>  
+    <br>  
+    <button id="saveReflectionBtn" style="margin-top:10px;padding:8px 12px;border:none;border-radius:6px;cursor:pointer;color:white;background:#27ae60;">💾 Save Reflection</button>  
+    <button id="closeReflectionBtn" style="margin-top:10px;padding:8px 12px;border:none;border-radius:6px;cursor:pointer;color:white;background:#e74c3c;margin-left:10px;">✖ Close</button>  
+  </div>  
+</div>  
+<script>
+const oldTestament=['Genesis','Exodus','Leviticus','Numbers','Deuteronomy','Joshua','Judges','Ruth','1 Samuel','2 Samuel','1 Kings','2 Kings','1 Chronicles','2 Chronicles','Ezra','Nehemiah','Esther','Job','Psalms','Proverbs','Ecclesiastes','Song of Solomon','Isaiah','Jeremiah','Lamentations','Ezekiel','Daniel','Hosea','Joel','Amos','Obadiah','Jonah','Micah','Nahum','Habakkuk','Zephaniah','Haggai','Zechariah','Malachi'];  
+const newTestament=['Matthew','Mark','Luke','John','Acts','Romans','1 Corinthians','2 Corinthians','Galatians','Ephesians','Philippians','Colossians','1 Thessalonians','2 Thessalonians','1 Timothy','2 Timothy','Titus','Philemon','Hebrews','James','1 Peter','2 Peter','1 John','2 John','3 John','Jude','Revelation'];  
+const chapterCounts={'Genesis':50,'Exodus':40,'Leviticus':27,'Numbers':36,'Deuteronomy':34,'Joshua':24,'Judges':21,'Ruth':4,'1 Samuel':31,'2 Samuel':24,'1 Kings':22,'2 Kings':25,'1 Chronicles':29,'2 Chronicles':36,'Ezra':10,'Nehemiah':13,'Esther':10,'Job':42,'Psalms':150,'Proverbs':31,'Ecclesiastes':12,'Song of Solomon':8,'Isaiah':66,'Jeremiah':52,'Lamentations':5,'Ezekiel':48,'Daniel':12,'Hosea':14,'Joel':3,'Amos':9,'Obadiah':1,'Jonah':4,'Micah':7,'Nahum':3,'Habakkuk':3,'Zephaniah':3,'Haggai':2,'Zechariah':14,'Malachi':4,'Matthew':28,'Mark':16,'Luke':24,'John':21,'Acts':28,'Romans':16,'1 Corinthians':16,'2 Corinthians':13,'Galatians':6,'Ephesians':6,'Philippians':4,'Colossians':4,'1 Thessalonians':5,'2 Thessalonians':3,'1 Timothy':6,'2 Timothy':4,'Titus':3,'Philemon':1,'Hebrews':13,'James':5,'1 Peter':5,'2 Peter':3,'1 John':5,'2 John':1,'3 John':1,'Jude':1,'Revelation':22};  
+
+let currentBook=null,currentChapter=null;  
+let savedReflections = JSON.parse(localStorage.getItem('savedReflections')||'[]');  
+let currentVerseForReflection=null;  
+
+/* --- REFLECTION FUNCTIONS --- */  
+function renderReflections(){  
+    const list=document.getElementById('reflection-list');  
+    list.innerHTML='';  
+    savedReflections.slice().reverse().forEach((r,i)=>{  
+        const div=document.createElement('div'); div.className='reflection-item';  
+        div.innerHTML=`<span><strong>${r.book} ${r.chapter}:${r.verse}</strong> - ${r.reflection}</span>`;  
+        const delBtn=document.createElement('button'); delBtn.textContent='Delete';  
+        delBtn.onclick=()=>{  
+            savedReflections.splice(savedReflections.length-1-i,1);  
+            localStorage.setItem('savedReflections',JSON.stringify(savedReflections));  
+            renderReflections();  
+        };  
+        div.appendChild(delBtn);  
+        list.appendChild(div);  
+    });  
+}  
+
+document.getElementById('saveReflectionBtn').onclick=()=>{  
+    if(currentVerseForReflection){  
+        const text=document.getElementById('reflectionText').value.trim();  
+        if(!text){alert('Please enter reflection'); return;}  
+        savedReflections.push({...currentVerseForReflection,reflection:text});  
+        localStorage.setItem('savedReflections',JSON.stringify(savedReflections));  
+        document.getElementById('reflectionModal').style.display='none';  
+        renderReflections();  
+    }  
+};  
+
+document.getElementById('closeReflectionBtn').onclick=()=>{document.getElementById('reflectionModal').style.display='none';};  
+
+/* --- CREATE BOOK BUTTONS --- */  
+function createBookElement(book, container){  
+    const bookDiv=document.createElement('div');    
+    bookDiv.className='book';    
+    bookDiv.textContent=book;    
+    bookDiv.onclick=()=>loadBook(book);    
+    container.appendChild(bookDiv);    
+}  
+
+/* --- LOAD BOOK --- */  
+function loadBook(book){  
+    currentBook=book;  
+    const readingArea=document.getElementById('reading-area');  
+    readingArea.innerHTML='';  
+
+    const chapterBar=document.createElement('div');  
+    chapterBar.style.overflowX='auto'; chapterBar.style.whiteSpace='nowrap'; chapterBar.style.marginBottom='20px';  
+
+    for(let i=1;i<=chapterCounts[book];i++){  
+        const chBtn=document.createElement('button');  
+        chBtn.textContent=i; chBtn.style.margin='5px'; chBtn.style.padding='8px 14px'; chBtn.style.borderRadius='20px';  
+        chBtn.style.border='none'; chBtn.style.cursor='pointer'; chBtn.style.background='#ecf0f1';  
+        chBtn.onclick=()=>loadChapter(book,i);  
+        chapterBar.appendChild(chBtn);  
+    }  
+    readingArea.appendChild(chapterBar);  
+
+    const verseContainer=document.createElement('div'); verseContainer.id='verse-container';  
+    readingArea.appendChild(verseContainer);  
+
+    loadChapter(book,1);  
+}  
+
+/* --- LOAD CHAPTER --- */  
+function loadChapter(book,chapter){  
+    currentBook=book; currentChapter=chapter;  
+    const vc=document.getElementById('verse-container');  
+    vc.innerHTML='<p>Loading chapter...</p>';  
+
+    fetch(`https://bible-api.com/${encodeURIComponent(book+' '+chapter)}?translation=kjv`)  
+    .then(res=>res.json())  
+    .then(data=>{  
+        vc.innerHTML='';  
+        const title=document.createElement('h3');    
+        title.textContent=`${book} Chapter ${chapter}`; title.style.marginBottom='20px';  
+        vc.appendChild(title);  
+
+        if(data.verses){  
+            data.verses.forEach(v=>{  
+                const verse=document.createElement('div'); verse.className='verse';  
+                verse.innerHTML=`<span><strong>${v.verse}</strong> ${v.text}</span>`;  
+
+                const highlightBtn=document.createElement('button'); highlightBtn.className='highlight-btn';  
+                highlightBtn.textContent='Highlight'; highlightBtn.onclick=()=>{ verse.classList.toggle('highlighted'); };  
+
+                const reflectBtn=document.createElement('button'); reflectBtn.className='reflect-btn';  
+                reflectBtn.textContent='Reflect'; reflectBtn.onclick=()=>{  
+                    currentVerseForReflection={book, chapter, verse:v.verse, text:v.text};  
+                    document.getElementById('reflectionText').value='';  
+                    document.getElementById('reflectionModal').style.display='flex';  
+                };  
+
+                verse.appendChild(highlightBtn);  
+                verse.appendChild(reflectBtn);  
+
+                vc.appendChild(verse);  
+            });  
+        } else vc.innerHTML='<p>No verses found.</p>';  
+    })  
+    .catch(()=>{ vc.innerHTML='<p>Error loading chapter.</p>'; });  
+}  
+
+/* --- DAILY VERSE --- */  
+function fetchDailyVerse(){  
+    const dv=document.getElementById('daily-verse');  
+    const allBooks=[...oldTestament,...newTestament];  
+    const book=allBooks[Math.floor(Math.random()*allBooks.length)];  
+    const chapter=Math.floor(Math.random()*chapterCounts[book])+1;  
+
+    fetch(`https://bible-api.com/${encodeURIComponent(book+' '+chapter)}?translation=kjv`)  
+    .then(res=>res.json())  
+    .then(data=>{  
+        if(data.verses && data.verses.length>0){  
+            const verse=data.verses[Math.floor(Math.random()*data.verses.length)];  
+            dv.innerHTML=`<strong>Daily Verse:</strong> ${book} ${chapter}:${verse.verse} - ${verse.text}`;  
+        } else dv.innerHTML='Daily Verse not available.';  
+    })  
+    .catch(()=>{ dv.innerHTML='Error fetching daily verse.'; });  
+}  
+
+/* --- SEARCH --- */  
+document.getElementById('search-btn').onclick=()=>{  
+    const query=document.getElementById('search-input').value.trim();  
+    const sr=document.getElementById('search-results');  
+    sr.innerHTML='Loading...'; sr.style.display='block';  
+    if(!query){ sr.innerHTML='Please enter a search term.'; return; }  
+
+    fetch(`https://bible-api.com/${encodeURIComponent(query)}?translation=kjv`)  
+    .then(res=>res.json())  
+    .then(data=>{  
+        sr.innerHTML='';  
+        if(data.verses && data.verses.length>0){  
+            data.verses.forEach(v=>{  
+                const div=document.createElement('div'); div.className='verse';  
+                div.innerHTML=`<span><strong>${data.book_name || query} ${v.verse}</strong> ${v.text}</span>`;  
+                const copyBtn=document.createElement('button'); copyBtn.className='highlight-btn';  
+                copyBtn.textContent='Copy'; copyBtn.onclick=()=>navigator.clipboard.writeText(`${data.book_name || query} ${v.verse} - ${v.text}`);  
+                div.appendChild(copyBtn);  
+                sr.appendChild(div);  
+            });  
+        } else sr.innerHTML='Verse not found.';  
+    })  
+    .catch(()=>{ sr.innerHTML='Error fetching verse.'; });  
+}  
+
+/* --- GUESS THE VERSE GAME --- */  
+let score=0; let correctAnswer='';  
+const allBooksGame=[...oldTestament,...newTestament];  
+
+document.getElementById("startGameBtn").onclick=()=>{document.getElementById("gameArea").style.display="block"; loadGameVerse();};  
+
+function loadGameVerse(){  
+    const book = allBooksGame[Math.floor(Math.random()*allBooksGame.length)];  
+    const chapter = Math.floor(Math.random()*chapterCounts[book])+1;  
+
+    fetch(`https://bible-api.com/${encodeURIComponent(book+" "+chapter)}?translation=kjv`)  
+    .then(res=>res.json())  
+    .then(data=>{  
+        if(!data.verses) return;  
+        const verse = data.verses[Math.floor(Math.random()*data.verses.length)];  
+        correctAnswer = `${book} ${chapter}:${verse.verse}`;  
+        document.getElementById("gamePrompt").innerHTML = `"${verse.text}"`;  
+        generateChoices();  
+    });  
+}  
+
+function generateChoices(){  
+    let choices=[correctAnswer];  
+    while(choices.length<4){  
+        const book = allBooksGame[Math.floor(Math.random()*allBooksGame.length)];  
+        const chapter = Math.floor(Math.random()*chapterCounts[book])+1;  
+        const verse = Math.floor(Math.random()*20)+1;  
+        let option=`${book} ${chapter}:${verse}`;  
+        if(!choices.includes(option)) choices.push(option);  
+    }  
+    choices.sort(()=>Math.random()-0.5);  
+
+    const container=document.getElementById("gameChoices");  
+    container.innerHTML="";  
+
+    choices.forEach(choice=>{  
+        const btn=document.createElement("button");  
+        btn.textContent=choice;  
+        btn.onclick=()=>checkAnswer(choice);  
+        container.appendChild(btn);  
+    });  
+}  
+
+function checkAnswer(choice){  
+    const feedback=document.getElementById("gameFeedback");  
+    if(choice===correctAnswer){score++; feedback.innerHTML=`✅ Correct! Score: ${score}`;}  
+    else{feedback.innerHTML=`❌ Wrong! Correct answer: ${correctAnswer} | Score: ${score}`;}  
+    document.getElementById("nextGameBtn").style.display="block";  
+}  
+
+document.getElementById("nextGameBtn").onclick=()=>{  
+    document.getElementById("gameFeedback").innerHTML="";  
+    document.getElementById("nextGameBtn").style.display="none";  
+    loadGameVerse();  
+};  
+
+/* --- INITIALIZE --- */  
+document.addEventListener('DOMContentLoaded',()=>{  
+    const oldContainer=document.getElementById('old-testament-books');  
+    oldTestament.forEach(b=>createBookElement(b,oldContainer));  
+    const newContainer=document.getElementById('new-testament-books');  
+    newTestament.forEach(b=>createBookElement(b,newContainer));  
+    fetchDailyVerse();  
+    renderReflections();  
+});  
+</script>
+</body>  
+</html>  
